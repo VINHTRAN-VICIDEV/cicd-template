@@ -46,21 +46,18 @@ jobs:
       - name: SSH and Deploy
         uses: appleboy/ssh-action@v0.1.5
         env:
-          IMAGE_URL: $ECR_REGISTRY/$ECR_REPOSITORY
-          IMAGE_TAG: $IMAGE_TAG
+          # IMAGE_URL: $ECR_REGISTRY/$ECR_REPOSITORY
+          # IMAGE_TAG: $IMAGE_TAG
+          FOO: 'BAR'
+          SHA: ${{ github.sha }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: IMAGE_URL,IMAGE_TAG
+          envs: FOO,SHA
           script: |
-            docker pull $IMAGE_URL/my-app:latest
-            docker stop my-app || true
-            docker rm my-app || true
-            docker run -d --name my-app -p 80:80 $IMAGE_URL/my-app:latest
-            rm old.txt
-            mv version.txt old.txt
-            echo $IMAGE_TAG>version.txt
+            echo "I am $FOO"
+            echo "I am $SHA"
 
   # rollback:
   #   runs-on: ubuntu-latest
