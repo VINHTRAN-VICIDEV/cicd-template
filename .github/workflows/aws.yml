@@ -34,7 +34,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: $GITHUB_REF_NAME-${GITHUB_SHA::7}
         run: |
           # Build a docker container and
           # push it to ECR so that it can
@@ -48,7 +48,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: testing
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: $GITHUB_REF_NAME-${GITHUB_SHA::7}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -61,20 +61,28 @@ jobs:
             rm old.txt
             mv version.txt old.txt
             echo $IMAGE_TAG >version.txt
+            - name: send telegram message on success
+            if: success() # Runs this step only if the 'deploy' job succeeded.
+            uses: appleboy/telegram-action@master
+            with:
+              to: ${{ secrets.TELEGRAM__SEND_TO }}
+              token: ${{ secrets.TELEGRAM__BOT_TOKEN }}
+              message: |
+                Deploy ${{ github.event.repository.name }} SUCCEEDED
+                ${{ github.actor }} created commit:
+                Commit message: ${{ github.event.commits[0].message }}
+                Repository: ${{ github.repository }}
+                See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
 
-  # rollback:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: SSH and Rollback
-  #       uses: appleboy/ssh-action@v0.1.5
-  #       with:
-  #         host: ${{ secrets.SSH_HOST }}
-  #         username: ${{ secrets.SSH_USER }}
-  #         key: ${{ secrets.SSH_KEY }}
-  #         script: |
-  #           VERSION=$(cat old.txt)
-  #           docker pull ${{ steps.ecr-login.outputs.registry }}/my-app:$VERSION
-  #           docker stop my-app || true
-  #           docker rm my-app || true
-  #           docker run -d --name my-app -p 80:80 ${{ steps.ecr-login.outputs.registry }}/my-app:$VERSION
+      - name: send telegram message on failure
+        if: failure() # Runs this step only if the 'deploy' job failed.
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM__SEND_TO }}
+          token: ${{ secrets.TELEGRAM__BOT_TOKEN }}
+          message: |
+            Deploy ${{ github.event.repository.name }} FAILED
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Repository: ${{ github.repository }}
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
