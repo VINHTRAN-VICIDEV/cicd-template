@@ -45,22 +45,22 @@ jobs:
 
       - name: SSH and Deploy
         uses: appleboy/ssh-action@v0.1.5
+        env:
+          IMAGE_URL: $ECR_REGISTRY/$ECR_REPOSITORY
+          IMAGE_TAG: $IMAGE_TAG
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          envs: IMAGE_URL,IMAGE_TAG
           script: |
-            docker pull ${{ steps.ecr-login.outputs.registry }}/my-app:latest
+            docker pull $IMAGE_URL/my-app:latest
             docker stop my-app || true
             docker rm my-app || true
-            docker run -d --name my-app -p 80:80 ${{ steps.ecr-login.outputs.registry }}/my-app:latest
-          #  docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          # script: docker stop my-app || true
-          # script: docker rm my-app || true
-          #   docker run -d --name my-app -p 80:80 $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          #   rm old.txt
-          #   mv version.txt old.txt
-          #   echo $IMAGE_TAG>version.txt
+            docker run -d --name my-app -p 80:80 $IMAGE_URL/my-app:latest
+            rm old.txt
+            mv version.txt old.txt
+            echo $IMAGE_TAG>version.txt
 
   # rollback:
   #   runs-on: ubuntu-latest
