@@ -1,7 +1,13 @@
 name: Deploy To EC2
 on:
+  pull_request:
+    branches:
+      - main
+      - develop
   push:
-    branches: ['main']
+    branches:
+      - develop
+
 env:
   AWS_REGION: ap-southeast-1 # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: testing # set this to your Amazon ECR repository name
