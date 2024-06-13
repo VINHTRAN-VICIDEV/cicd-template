@@ -50,8 +50,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            - ls
-              docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            ls
+          #  docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
           # script: docker stop my-app || true
           # script: docker rm my-app || true
           #   docker run -d --name my-app -p 80:80 $ECR_REGISTRY/$ECR_REPOSITORY:latest
