@@ -21,7 +21,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -43,12 +43,14 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: testing
+          AWS_ECR_LOGIN: ${{secrets.AWS_ECR_LOGIN}}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: ECR_REGISTRY,ECR_REPOSITORY
+          envs: ECR_REGISTRY,ECR_REPOSITORY,AWS_ECR_LOGIN
           script: |
+            ${AWS_ECR_LOGIN}
             IMAGE_TAG=${GITHUB_REF_NAME}-${GITHUB_SHA::7}
             docker stop my-app || true
             docker rm my-app || true
