@@ -34,7 +34,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-
+          ECR_REPOSITORY: testing
         run: |
           IMAGE_TAG=${GITHUB_REF_NAME}-${GITHUB_SHA::7}
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -81,7 +81,6 @@ jobs:
           to: ${{ secrets.TELEGRAM__SEND_TO }}
           token: ${{ secrets.TELEGRAM__BOT_TOKEN }}
           message: |
-            echo ${{secrets.SSH_HOST}}
             Deploy ${{ github.event.repository.name }} on the branch ${{github.ref_name}} FAILED
             ${{ github.actor }} created commit:
             Commit message: ${{ github.event.commits[0].message }}
