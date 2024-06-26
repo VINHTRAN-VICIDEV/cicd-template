@@ -87,16 +87,18 @@ jobs:
           message: |
             hello ${{secrets.SSH_HOST}}
 
-    #   - name: send telegram message on failure
-    #     if: failure()
-    #     # Runs this step only if the 'deploy' job failed.
-    #     uses: appleboy/telegram-action@master
-    #     with:
-    #       to: ${{ secrets.TELEGRAM__SEND_TO }}
-    #       token: ${{ secrets.TELEGRAM__BOT_TOKEN }}
+      - name: send telegram message on failure
+        if: failure()
+        # Runs this step only if the 'deploy' job failed.
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM__SEND_TO }}
+          token: ${{ secrets.TELEGRAM__BOT_TOKEN }}
     #       message: |
     #         Deploy ${{ github.event.repository.name }} FAILED
     #         ${{ github.actor }} created commit:
     #         Commit message: ${{ github.event.commits[0].message }}
     #         Repository: ${{ github.repository }}
     #         See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            messsage: |
+              hello ${{secrets.SSH_HOST}}
